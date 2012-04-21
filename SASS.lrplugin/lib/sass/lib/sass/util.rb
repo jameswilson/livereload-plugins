@@ -85,8 +85,9 @@ module Sass
     # @return [Hash] The mapped hash
     # @see #map_keys
     # @see #map_vals
-    def map_hash(hash, &block)
-      to_hash(hash.map(&block))
+    def map_hash(hash)
+      # Using &block here completely hoses performance on 1.8.
+      to_hash(hash.map {|k, v| yield k, v})
     end
 
     # Computes the powerset of the given array.
@@ -230,6 +231,29 @@ module Sass
     def hash_to_a(hash)
       return hash.to_a unless ruby1_8? || defined?(Test::Unit)
       return hash.sort_by {|k, v| k}
+    end
+
+    # Performs the equivalent of `enum.group_by.to_a`, but with a guaranteed
+    # order. Unlike [#hash_to_a], the resulting order isn't sorted key order;
+    # instead, it's the same order as `#group_by` has under Ruby 1.9 (key
+    # appearance order).
+    #
+    # @param enum [Enumerable]
+    # @return [Array<[Object, Array]>] An array of pairs.
+    def group_by_to_a(enum, &block)
+      return enum.group_by(&block).to_a unless ruby1_8?
+      order = {}
+      arr = []
+      enum.group_by do |e|
+        res = block[e]
+        unless order.include?(res)
+          order[res] = order.size
+        end
+        res
+      end.each do |key, vals|
+        arr[order[key]] = [key, vals]
+      end
+      arr
     end
 
     # Returns information about the caller of the previous method.

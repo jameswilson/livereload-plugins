@@ -107,10 +107,15 @@ module Sass
       TILDE = /#{W}~/
       NOT = quote(":not(", Regexp::IGNORECASE)
 
+      # Defined in https://developer.mozilla.org/en/CSS/@-moz-document as a
+      # non-standard version of http://www.w3.org/TR/css3-conditional/
+      URL_PREFIX = /url-prefix\(#{W}(?:#{STRING}|#{URL})#{W}\)/i
+      DOMAIN = /domain\(#{W}(?:#{STRING}|#{URL})#{W}\)/i
+
       # Custom
       HEXCOLOR = /\#[0-9a-fA-F]+/
       INTERP_START = /#\{/
-      MOZ_ANY = quote(":-moz-any(", Regexp::IGNORECASE)
+      ANY = /:(-[-\w]+-)?any\(/i
 
       IDENT_HYPHEN_INTERP = /-(#\{)/
       STRING1_NOINTERP = /\"((?:[^\n\r\f\\"#]|#(?!\{)|\\#{NL}|#{ESCAPE})*)\"/

@@ -114,6 +114,12 @@ module Sass
         [:single, true] => string_re('', "'"),
         [:uri, false] => /url\(#{W}(#{URLCHAR}*?)(#{W}\)|#\{)/,
         [:uri, true] => /(#{URLCHAR}*?)(#{W}\)|#\{)/,
+        # Defined in https://developer.mozilla.org/en/CSS/@-moz-document as a
+        # non-standard version of http://www.w3.org/TR/css3-conditional/
+        [:url_prefix, false] => /url-prefix\(#{W}(#{URLCHAR}*?)(#{W}\)|#\{)/,
+        [:url_prefix, true] => /(#{URLCHAR}*?)(#{W}\)|#\{)/,
+        [:domain, false] => /domain\(#{W}(#{URLCHAR}*?)(#{W}\)|#\{)/,
+        [:domain, true] => /(#{URLCHAR}*?)(#{W}\)|#\{)/,
       }
 
       # @param str [String, StringScanner] The source text to lex
@@ -287,7 +293,7 @@ MESSAGE
       end
 
       def special_fun
-        return unless str1 = scan(/((-[\w-]+-)?calc|expression|progid:[a-z\.]*)\(/i)
+        return unless str1 = scan(/((-[\w-]+-)?(calc|element)|expression|progid:[a-z\.]*)\(/i)
         str2, _ = Sass::Shared.balance(@scanner, ?(, ?), 1)
         c = str2.count("\n")
         old_line = @line

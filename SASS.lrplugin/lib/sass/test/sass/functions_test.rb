@@ -154,18 +154,38 @@ class SassFunctionTest < Test::Unit::TestCase
     assert_error_message("#aaaaaa is not a number for `abs'", "abs(#aaa)")
   end
 
+  def test_min
+    #assert_equal("1", evaluate("min(1, 2, 3)"))
+    assert_equal("1", evaluate("min(3px, 2px, 1)"))
+    assert_equal("4em", evaluate("min(4em)"))
+    assert_equal("10cm", evaluate("min(10cm, 6in)"))
+
+    assert_error_message("#aaaaaa is not a number for `min'", "min(#aaa)")
+    assert_error_message("Incompatible units: 'px' and 'em'.", "min(3em, 4em, 1px)")
+  end
+
+  def test_max
+    assert_equal("3", evaluate("max(1, 2, 3)"))
+    assert_equal("3", evaluate("max(3, 2px, 1px)"))
+    assert_equal("4em", evaluate("max(4em)"))
+    assert_equal("6in", evaluate("max(10cm, 6in)"))
+
+    assert_error_message("#aaaaaa is not a number for `max'", "max(#aaa)")
+    assert_error_message("Incompatible units: 'px' and 'em'.", "max(3em, 4em, 1px)")
+  end
+
   def test_rgb
     assert_equal("#123456", evaluate("rgb(18, 52, 86)"))
     assert_equal("#beaded", evaluate("rgb(190, 173, 237)"))
-    assert_equal("#00ff7f", evaluate("rgb(0, 255, 127)"))
-    assert_equal("#00ff7f", evaluate("rgb($red: 0, $green: 255, $blue: 127)"))
+    assert_equal("springgreen", evaluate("rgb(0, 255, 127)"))
+    assert_equal("springgreen", evaluate("rgb($red: 0, $green: 255, $blue: 127)"))
   end
 
   def test_rgb_percent
     assert_equal("#123456", evaluate("rgb(7.1%, 20.4%, 34%)"))
     assert_equal("#beaded", evaluate("rgb(74.7%, 173, 93%)"))
     assert_equal("#beaded", evaluate("rgb(190, 68%, 237)"))
-    assert_equal("#00ff7f", evaluate("rgb(0%, 100%, 50%)"))
+    assert_equal("springgreen", evaluate("rgb(0%, 100%, 50%)"))
   end
 
   def test_rgb_tests_bounds
@@ -735,6 +755,13 @@ class SassFunctionTest < Test::Unit::TestCase
       "change-color(blue, $lightness: 10%, $red: 120)");
   end
 
+  def test_ie_hex_str
+    assert_equal("#FFAA11CC", evaluate('ie-hex-str(#aa11cc)'))
+    assert_equal("#FFAA11CC", evaluate('ie-hex-str(#a1c)'))
+    assert_equal("#FFAA11CC", evaluate('ie-hex-str(#A1c)'))
+    assert_equal("#80FF0000", evaluate('ie-hex-str(rgba(255, 0, 0, 0.5))'))
+  end
+
   def test_mix
     assert_equal("#7f007f", evaluate("mix(#f00, #00f)"))
     assert_equal("#7f7f7f", evaluate("mix(#f00, #0ff)"))
@@ -783,8 +810,8 @@ class SassFunctionTest < Test::Unit::TestCase
 
   def test_complement
     assert_equal("#ccbbaa", evaluate("complement(#abc)"))
-    assert_equal("aqua", evaluate("complement(red)"))
-    assert_equal("red", evaluate("complement(aqua)"))
+    assert_equal("cyan", evaluate("complement(red)"))
+    assert_equal("red", evaluate("complement(cyan)"))
     assert_equal("white", evaluate("complement(white)"))
     assert_equal("black", evaluate("complement(black)"))
     assert_equal("black", evaluate("complement($color: black)"))
